@@ -39,74 +39,74 @@ int main(void)
 	hwnd = GetForegroundWindow();
 	hdc = GetWindowDC(hwnd);
 
-	int range = 400; // 0~400 ¹üÀ§ ·£´ı º¯¼ö
-	int rcnt = 10000; // rcnt times ·£´ı º¯¼ö ¹ß»ı
+	int range = 400; // 0~400 ë²”ìœ„ ëœë¤ ë³€ìˆ˜
+	int rcnt = 10000; // rcnt times ëœë¤ ë³€ìˆ˜ ë°œìƒ
 	int y_axis = 300;
 
-	float avg = 0; // Æò±Õ
-	float sigma = 1; // Ç¥ÁØÆíÂ÷
+	float avg = 0; // í‰ê· 
+	float sigma = 1; // í‘œì¤€í¸ì°¨
 
 
-	int random_variable[401] = { 0, }; // ·£´ı º¯¼ö count
-	int Gaussian_random_variable[401] = { 0, }; // °¡¿ì½Ã¾È º¯¼ö count
-	float gaussianCDF[401] = { 0, }; // ·£´ı °¡¿ì½Ã¾È ºĞÆ÷ CDF
-	float gaussianCDF_true[401] = { 0, }; // ½ÇÁ¦ Á¤´ä °¡¿ì½Ã¾È ºĞÆ÷ CDF
+	int random_variable[401] = { 0, }; // ëœë¤ ë³€ìˆ˜ count
+	int Gaussian_random_variable[401] = { 0, }; // ê°€ìš°ì‹œì•ˆ ë³€ìˆ˜ count
+	float gaussianCDF[401] = { 0, }; // ëœë¤ ê°€ìš°ì‹œì•ˆ ë¶„í¬ CDF
+	float gaussianCDF_true[401] = { 0, }; // ì‹¤ì œ ì •ë‹µ ê°€ìš°ì‹œì•ˆ ë¶„í¬ CDF
 
 
 	srand(time(NULL));
 	for (int i = 0; i < rcnt; i++) {
-		// 0~400 ¹üÀ§ÀÇ ³­¼ö¸¦ 10000¹ø »ı¼ºÇÏ¸ç, ÇØ´ç ³­¼öÀÇ »ı¼º È½¼ö¸¦ Ä«¿îÆ®
+		// 0~400 ë²”ìœ„ì˜ ë‚œìˆ˜ë¥¼ 10000ë²ˆ ìƒì„±í•˜ë©°, í•´ë‹¹ ë‚œìˆ˜ì˜ ìƒì„± íšŸìˆ˜ë¥¼ ì¹´ìš´íŠ¸
 		random_variable[rand() % 401] += 1;
 	}
-	DrawHistogram(random_variable, 30, y_axis - 100, range);  // ·£´ı º¯¼ö ºĞÆ÷ Ãâ·Â
+	DrawHistogram(random_variable, 30, y_axis - 100, range);  // ëœë¤ ë³€ìˆ˜ ë¶„í¬ ì¶œë ¥
 	
 
-	// random variableÀÇ CDF
+	// random variableì˜ CDF
 	float randomCDF[401] = { 0, };
 	int cnt = 0;
 	for (int i = 0; i < 401; i++) {
-		cnt += random_variable[i];	// ³­¼ö »ı¼º È½¼ö¸¦ ´©ÀûÀ¸·Î ´õÇÔ
-		randomCDF[i] = (float)cnt / 10000;	// cnt¸¦ 10000À¸·Î ³ª´®À¸·Î½á cdf ±¸ÇÒ ¼ö ÀÖÀ½
+		cnt += random_variable[i];	// ë‚œìˆ˜ ìƒì„± íšŸìˆ˜ë¥¼ ëˆ„ì ìœ¼ë¡œ ë”í•¨
+		randomCDF[i] = (float)cnt / 10000;	// cntë¥¼ 10000ìœ¼ë¡œ ë‚˜ëˆ”ìœ¼ë¡œì¨ cdf êµ¬í•  ìˆ˜ ìˆìŒ
 		//printf("[%d]: %f\n", i, randomCDF[i]);
 	}
 	//DrawHistogram(randomCDF, 30, y_axis, range);
 
 
-	// normal_cdfÀÇ ¿ªÇÔ¼ö 
-	float inverse_value[401] = { 0, };	// inverse_normal_cdfÀÇ ¸®ÅÏ °ª
+	// normal_cdfì˜ ì—­í•¨ìˆ˜ 
+	float inverse_value[401] = { 0, };	// inverse_normal_cdfì˜ ë¦¬í„´ ê°’
 	for (int j = 0; j < 401; j++) {
-		// ÇØ´ç ³­¼öÀÇ »ı¼º È½¼ö¸¸Å­ ¹İº¹ÇÏ¿© °¡¿ì½Ã¾È º¯¼ö Ä«¿îÆ®
+		// í•´ë‹¹ ë‚œìˆ˜ì˜ ìƒì„± íšŸìˆ˜ë§Œí¼ ë°˜ë³µí•˜ì—¬ ê°€ìš°ì‹œì•ˆ ë³€ìˆ˜ ì¹´ìš´íŠ¸
 		for (int k = 0; k < random_variable[j]; k++) {	
 			inverse_value[j] = inverse_normal_cdf(randomCDF[j], avg, sigma, 0.00001);
 
-			int index = (int)20 * inverse_value[j] + 200;	// 0~400 °ªÀ¸·Î ¸¸µê
-			Gaussian_random_variable[index] += 1;	// °¡¿ì½Ã¾È º¯¼ö Ä«¿îÆ®
+			int index = (int)20 * inverse_value[j] + 200;	// 0~400 ê°’ìœ¼ë¡œ ë§Œë“¦
+			Gaussian_random_variable[index] += 1;	// ê°€ìš°ì‹œì•ˆ ë³€ìˆ˜ ì¹´ìš´íŠ¸
 		}
 	}
-	DrawHistogram(Gaussian_random_variable, 500, y_axis, range); // °¡¿ì½Ã¾È º¯¼ö ºĞÆ÷ Ãâ·Â
+	DrawHistogram(Gaussian_random_variable, 500, y_axis, range); // ê°€ìš°ì‹œì•ˆ ë³€ìˆ˜ ë¶„í¬ ì¶œë ¥
 	/*for (int i = 0; i <= 400; i++) {
 		printf("[%d]: %d\n", i, Gaussian_random_variable[i]);
 	}*/
 
-	// ½ÇÁ¦ Gaussian pdf Ãâ·Â (»¡°£»ö ±×·¡ÇÁ)
+	// ì‹¤ì œ Gaussian pdf ì¶œë ¥ (ë¹¨ê°„ìƒ‰ ê·¸ë˜í”„)
 	for (int i = 1; i < range; i++) {
 		float value = normal_pdf(i - 1 * range / 2, range / 20, avg, sigma);
 		Draw(value * 250, 500, y_axis, i, RED);
 	}
 
 
-	// Gaussian_random_variableÀÇ CDF ±¸ÇÔ
+	// Gaussian_random_variableì˜ CDF êµ¬í•¨
 	cnt = 0;
 	for (int i = 0; i < 401; i++)
 	{
-		cnt += Gaussian_random_variable[i];	// °¡¿ì½Ã¾È º¯¼ö »ı¼º È½¼ö¸¦ ´©ÀûÀ¸·Î ´õÇÔ
-		gaussianCDF[i] = (float)cnt / 10000;	// cnt¸¦ 10000À¸·Î ³ª´®À¸·Î½á CDF ¾òÀ½
+		cnt += Gaussian_random_variable[i];	// ê°€ìš°ì‹œì•ˆ ë³€ìˆ˜ ìƒì„± íšŸìˆ˜ë¥¼ ëˆ„ì ìœ¼ë¡œ ë”í•¨
+		gaussianCDF[i] = (float)cnt / 10000;	// cntë¥¼ 10000ìœ¼ë¡œ ë‚˜ëˆ”ìœ¼ë¡œì¨ CDF ì–»ìŒ
 		//printf("[%d]: %f\n", i, gaussianCDF[i]);
 	}
 	//DrawHistogram(gaussianCDF, 500, y_axis+300, range);
 
 
-	// ½ÇÁ¦ Gaussian CDF ±¸ÇÔ
+	// ì‹¤ì œ Gaussian CDF êµ¬í•¨
 	for (int i = 0; i < 401; i++)
 	{
 		gaussianCDF_true[i] = normal_cdf((float)i / 20.0 - 10.0, avg, sigma);
@@ -135,7 +135,7 @@ void Draw(float val, int x_origin, int y_origin, int curx, color c) {
 	}
 }
 
-// Gaussian pdf¸¦ ±¸ÇÔ
+// Gaussian pdfë¥¼ êµ¬í•¨
 float normal_pdf(int x, float rate, float  mu = 0, float sigma = 1) {
 	double pi = M_PI;
 
@@ -144,43 +144,43 @@ float normal_pdf(int x, float rate, float  mu = 0, float sigma = 1) {
 	return _exp / (sqrt_two_pi * sigma);
 }
 
-// Gaussian cdf¸¦ ±¸ÇÔ
+// Gaussian cdfë¥¼ êµ¬í•¨
 float normal_cdf(float x, float mu = 0, float sigma = 1) {
 	return (1 + erf((x - mu) / sqrt(2) / sigma)) / 2;
 }
 
-// Gaussian cdfÀÇ ¿ªÇÔ¼ö¸¦ ±¸ÇÔ
+// Gaussian cdfì˜ ì—­í•¨ìˆ˜ë¥¼ êµ¬í•¨
 float inverse_normal_cdf(float p, float mu = 0, float sigma = 1, float tolerance = 0.00001)
 {
-	// Ç¥ÁØÁ¤±ÔºĞÆ÷°¡ ¾Æ´Ñ °æ¿ì
+	// í‘œì¤€ì •ê·œë¶„í¬ê°€ ì•„ë‹Œ ê²½ìš°
 	if (mu != 0 || sigma != 1) {
 		return mu + sigma * inverse_normal_cdf(p, 0, 1, tolerance = tolerance);
 	}
 
-	float low_x = -10.0, low_p = 0.0; // normal_cdf(-10)´Â 0¿¡ ±ÙÁ¢
-	float hi_x = 10.0, hi_p = 1.0;	  // normal_cdf(10)´Â 1¿¡ ±ÙÁ¢
+	float low_x = -10.0, low_p = 0.0; // normal_cdf(-10)ëŠ” 0ì— ê·¼ì ‘
+	float hi_x = 10.0, hi_p = 1.0;	  // normal_cdf(10)ëŠ” 1ì— ê·¼ì ‘
 	float mid_x = 0.0, mid_p = 0.0;
 
-	while (hi_x - low_x > tolerance)	// ÇØ´ç p¸¦ Ã£À» ¶§±îÁö ¹İº¹
+	while (hi_x - low_x > tolerance)	// í•´ë‹¹ pë¥¼ ì°¾ì„ ë•Œê¹Œì§€ ë°˜ë³µ
 	{
-		mid_x = (low_x + hi_x) / 2; // Áß°£ °ª °è»ê
-		mid_p = normal_cdf(mid_x, mu, sigma); // Áß°£ °ªÀÇ cdf °ªÀ» °è»ê
-		if (mid_p < p) {  // mid_p°¡ Ã£´Â °ªº¸´Ù ÀÛÀ¸¸é ´õ Å« °ª¿¡¼­ Å½»ö
+		mid_x = (low_x + hi_x) / 2; // ì¤‘ê°„ ê°’ ê³„ì‚°
+		mid_p = normal_cdf(mid_x, mu, sigma); // ì¤‘ê°„ ê°’ì˜ cdf ê°’ì„ ê³„ì‚°
+		if (mid_p < p) {  // mid_pê°€ ì°¾ëŠ” ê°’ë³´ë‹¤ ì‘ìœ¼ë©´ ë” í° ê°’ì—ì„œ íƒìƒ‰
 			low_x = mid_x;
 			low_p = mid_p;
 		}
-		else if (mid_p > p) { // mid_p°¡ Ã£´Â °ªº¸´Ù Å©¸é ´õ ÀÛÀº °ª¿¡¼­ Å½»ö
+		else if (mid_p > p) { // mid_pê°€ ì°¾ëŠ” ê°’ë³´ë‹¤ í¬ë©´ ë” ì‘ì€ ê°’ì—ì„œ íƒìƒ‰
 			hi_x = mid_x;
 			hi_p = mid_p;
 		}
-		else {	// p °ªÀ» Ã£À¸¸é break
+		else {	// p ê°’ì„ ì°¾ìœ¼ë©´ break
 			break;
 		}
 	}
-	return mid_x;	// normal_cdf °ªÀÌ pÀÎ x ¹İÈ¯
+	return mid_x;	// normal_cdf ê°’ì´ pì¸ x ë°˜í™˜
 }
 
-// È÷½ºÅä±×·¥ Ãâ·Â
+// íˆìŠ¤í† ê·¸ë¨ ì¶œë ¥
 void DrawHistogram(int histogram[400], int x_origin, int y_origin, int cnt) {
 	MoveToEx(hdc, x_origin, y_origin, 0);
 	LineTo(hdc, x_origin + cnt, y_origin);
@@ -195,7 +195,7 @@ void DrawHistogram(int histogram[400], int x_origin, int y_origin, int cnt) {
 		}
 	}
 }
-// È÷½ºÅä±×·¥ Ãâ·Â
+// íˆìŠ¤í† ê·¸ë¨ ì¶œë ¥
 void DrawHistogram(float histogram[400], int x_origin, int y_origin, int cnt) {
 	MoveToEx(hdc, x_origin, y_origin, 0);
 	LineTo(hdc, x_origin + cnt, y_origin);
@@ -211,7 +211,7 @@ void DrawHistogram(float histogram[400], int x_origin, int y_origin, int cnt) {
 	}
 }
 
-// gaussianCDF¿¡¼­ gaussianCDF_true¸¦ »« °ªµé Áß °¡Àå Å« °ªÀ» ¹İÈ¯
+// gaussianCDFì—ì„œ gaussianCDF_trueë¥¼ ëº€ ê°’ë“¤ ì¤‘ ê°€ì¥ í° ê°’ì„ ë°˜í™˜
 float Dminus(float gaussianCDF[], float gaussianCDF_true[])
 {
 	float data[401];
@@ -224,7 +224,7 @@ float Dminus(float gaussianCDF[], float gaussianCDF_true[])
 	return largest(data);
 }
 
-//gaussianCDF_true¿¡¼­ gaussianCDF¸¦ »« °ªµé Áß °¡Àå Å« °ªÀ» ¹İÈ¯
+//gaussianCDF_trueì—ì„œ gaussianCDFë¥¼ ëº€ ê°’ë“¤ ì¤‘ ê°€ì¥ í° ê°’ì„ ë°˜í™˜
 float Dplus(float gaussianCDF[], float gaussianCDF_true[])
 {
 	float data[401];
@@ -237,7 +237,7 @@ float Dplus(float gaussianCDF[], float gaussianCDF_true[])
 	return largest(data);
 }
 
-// ¹è¿­¿¡¼­ °¡Àå Å« °ªÀ» ¹İÈ¯
+// ë°°ì—´ì—ì„œ ê°€ì¥ í° ê°’ì„ ë°˜í™˜
 float largest(float data[])
 {
 	float large = data[0];
