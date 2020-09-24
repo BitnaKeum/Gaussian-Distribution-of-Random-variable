@@ -1,6 +1,5 @@
-
-
-<h4>Gaussian 분포를 갖는 random variable을 생성하는 프로그램
+<br>
+<h3>Gaussian 분포를 갖는 random variable을 생성하는 프로그램</h4>
 
 Uniform distribution의 random variable X를 변환하여 Gaussian 분포를 갖는 random variable Y를 만들어 낸다.
 
